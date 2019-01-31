@@ -12,4 +12,5 @@ public interface UserMapper {
 
     User findById(Long id);
 
+    Integer insert(User user);
 }

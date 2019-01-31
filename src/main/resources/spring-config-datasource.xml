@@ -2,9 +2,11 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:content="http://www.springframework.org/schema/context"
        xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
-
+         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd
+         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <aop:aspectj-autoproxy/>
 
     <content:component-scan base-package="com.bule.dbrw"></content:component-scan>
     <content:property-placeholder location="classpath:dbconfig.properties"/>
@@ -77,21 +79,26 @@
         <property name="defaultTargetDataSource" ref="masterDataSource"/>
         <property name="targetDataSources">
             <map>
-                <entry key="MASTER" value-ref="masterDataSource"/>
-                <entry key="SLAVE" value-ref="slaveDataSource"/>
+                <entry key="WRITE" value-ref="masterDataSource"/>
+                <entry key="READ" value-ref="slaveDataSource"/>
             </map>
         </property>
     </bean>
 
-
-
     <!-- 该包下的类支持注解，表示会被当作{@code mybatis mapper}处理 配置了之后表示可以自动引入mapper类-->
-    <mybatis:scan base-package="com.bule.dbrw.dao" />
+    <mybatis:scan base-package="com.bule.dbrw.dao"/>
+    <!-- 配置 Annotation 驱动，扫描@Transactional注解的类定义事务  -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <!-- 定义事务 -->
+    <bean id="transactionManager" class="com.bule.dbrw.getway.DataSourceTransactiongManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
 
     <!-- mybatis配置 -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dataSource" />
-        <property name="configLocation" value="classpath:mybatis-configure.xml" />
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis-configure.xml"/>
     </bean>
 
 </beans>
