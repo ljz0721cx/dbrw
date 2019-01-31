@@ -10,7 +10,7 @@
     <content:component-scan base-package="com.bule.dbrw"></content:component-scan>
     <content:property-placeholder location="classpath:dbconfig.properties"/>
 
-    <bean id="abstractDataSource" abstract="true" class="com.alibaba.druid.pool.DruidDataSource">
+    <bean id="abstractDataSource" abstract="true" class="com.alibaba.druid.pool.xa.DruidXADataSource">
         <property name="driverClassName" value="${jdbc.driver}"/>
         <!--最大连接池数量-->
         <property name="maxActive" value="15"/>
@@ -72,7 +72,7 @@
         <!--数据源名字-->
         <property name="name" value="slave"/>
     </bean>
-    <!--多数据源配置-->
+    <!--多数据源配置  FIXME 只有JTA的方式可以适用-->
     <bean id="dataSource" class="org.springframework.jdbc.datasource.lookup.IsolationLevelDataSourceRouter">
         <property name="defaultTargetDataSource" ref="masterDataSource"/>
         <property name="targetDataSources">
